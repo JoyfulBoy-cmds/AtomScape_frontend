@@ -1,4 +1,4 @@
-const BACKEND = "http://localhost:3001";
+const BACKEND = "https://atomscape-backend.onrender.com";
 
 let atoms = Number(localStorage.getItem("atoms") || 0);
 let lastDailyReward = localStorage.getItem("lastDailyReward") || "";
