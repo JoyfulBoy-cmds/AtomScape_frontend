@@ -1387,6 +1387,25 @@ async function reportMessage(messageId) {
 }
 
 // ==============================
+// BAD WORD DETECTOR
+// ==============================
+const banned = [
+    "fuck",
+    "bitch",
+    "ass",
+    "motherfucker",
+    "Get deported",
+    
+];
+
+function containsBannedWord(message) {
+    const lowerMessage = message.toLowerCase();
+
+    return banned.some(word =>
+        lowerMessage.includes(word.toLowerCase())
+    );
+}
+// ==============================
 // STUDY TIMER
 // ==============================
 
