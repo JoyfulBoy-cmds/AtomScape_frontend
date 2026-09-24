@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AtomScape Classroom</title>
+
+<link rel="stylesheet" href="styles.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<header>
+
+<div class="logo">
+    ⚛️ <span>AtomScape</span>
+</div>
+
+<nav class="main-nav">
+
+    <button
+        class="nav-button active"
+        onclick="showSection('dashboardSection', this)">
+        🏠 Dashboard
+    </button>
+
+    <button
+        class="nav-button"
+        onclick="showSection('groupsSection', this)">
+        💬 Study Groups
+    </button>
+
+    <button
+        class="nav-button"
+        onclick="showSection('toolsSection', this)">
+        🛠️ Tools
+    </button>
+
+    <button
+        class="nav-button"
+        onclick="showSection('shopSection', this)">
+        🛍️ Shop
+    </button>
+
+</nav>
+
+<div class="header-right">
+
+    <div class="atoms">
+        ⚛ <span id="atoms">0</span> Atoms
+    </div>
+
+    <div id="profileName" class="profile-name"></div>
+
+    <button
+        id="loginButton"
+        onclick="login()">
+        Login with Google Classroom
+    </button>
+
+    <button
+        id="disconnectButton"
+        class="secondary hidden"
+        onclick="disconnect()">
+        Disconnect
+    </button>
+
+</div>
+
+</header>
+
+<main>
+
+<!-- DASHBOARD -->
+
+<section id="dashboardSection" class="app-section">
+
+<section class="hero">
+
+    <div class="hero-text">
+
+        <div class="tag">
+            GOOGLE CLASSROOM HUB
+        </div>
+
+        <h1>
+            Your classroom.
+            <span>Supercharged.</span>
+        </h1>
+
+        <p>
+            Connect Google Classroom to see your classes,
+            assignments and progress in one beautiful dashboard.
+        </p>
+
+        <div class="buttons">
+
+            <button
+                class="main-button"
+                onclick="login()"
+                id="heroLogin">
+                Connect Google Classroom
+            </button>
+
+            <button
+                class="daily-button"
+                onclick="dailyReward()">
+                ☀️ Claim Daily +10
+            </button>
+
+        </div>
+
+        <div id="connectionStatus">
+            Not connected
+        </div>
+
+    </div>
+
+
+    <div class="atom-card">
+
+        <div class="atom-symbol">
+            ⚛
+        </div>
+
+        <div
+            class="atom-number"
+            id="bigAtoms">
+            0
+        </div>
+
+        <div class="atom-title">
+            ATOMS
+        </div>
+
+        <div class="progress">
+            <div id="progressBar"></div>
+        </div>
+
+        <p id="premiumProgress">
+            100 Atoms unlock Premium
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="dashboard">
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <h2>📚 My Classes</h2>
+
+            <button
+                onclick="loadClassroom()"
+                class="small-button">
+                Refresh
+            </button>
+
+        </div>
+
+        <div
+            id="classes"
+            class="empty">
+            Connect Google Classroom to load your classes.
+        </div>
+
+    </div>
+
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <h2>📝 Assignments</h2>
+
+            <div
+                class="count"
+                id="assignmentCount">
+                0
+            </div>
+
+        </div>
+
+        <div
+            id="assignments"
+            class="empty">
+            Your assignments will appear here.
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="premium">
+
+    <div>
+
+        <div class="tag">
+            ATOM REWARDS
+        </div>
+
+        <h2>
+            Unlock AtomScape Premium
+        </h2>
+
+        <p>
+            Collect 100 Atoms and unlock Premium for free.
+        </p>
+
+    </div>
+
+    <button
+        id="premiumButton"
+        onclick="unlockPremium()">
+        Need 100 Atoms
+    </button>
+
+</section>
+
+
+<section class="panel rewards">
+
+    <h2>⚛ Ways to earn Atoms</h2>
+
+    <div class="reward-grid">
+
+        <div class="reward">
+            <div>☀️</div>
+            <h3>Daily Check-in</h3>
+            <p>+10 Atoms every day</p>
+        </div>
+
+        <div class="reward">
+            <div>📚</div>
+            <h3>Connect Classroom</h3>
+            <p>+10 Atoms for your first connection</p>
+        </div>
+
+        <div class="reward">
+            <div>✅</div>
+            <h3>Complete Work</h3>
+            <p>+5 Atoms for completed assignments</p>
+        </div>
+
+        <div class="reward">
+            <div>🔥</div>
+            <h3>Streak</h3>
+            <p>Build your classroom streak</p>
+        </div>
+
+    </div>
+
+</section>
+
+</section>
+
+<!-- STUDY GROUPS -->
+
+<section
+    id="groupsSection"
+    class="app-section hidden">
+
+<div class="page-header">
+
+    <div>
+
+        <div class="tag">
+            COLLABORATION
+        </div>
+
+        <h1>
+            Study Groups <span>💬</span>
+        </h1>
+
+        <p>
+            Work together, ask questions, and study with classmates.
+        </p>
+
+    </div>
+
+    <button
+        class="main-button"
+        onclick="openCreateGroup()">
+        + Create Group
+    </button>
+
+</div>
+
+
+<div class="groups-layout">
+
+    <div class="panel groups-panel">
+
+        <div class="panel-header">
+
+            <h2>👥 Available Groups</h2>
+
+            <button
+                class="small-button"
+                onclick="loadStudyGroups()">
+                Refresh
+            </button>
+
+        </div>
+
+        <div id="studyGroupsList">
+
+            <div class="empty">
+                Loading study groups...
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="panel chat-panel">
+
+        <div class="chat-header">
+
+            <div>
+
+                <h2 id="chatGroupName">
+                    💬 Select a group
+                </h2>
+
+                <p id="chatGroupMembers">
+                    Choose a study group to start chatting.
+                </p>
+
+            </div>
+
+            <button
+                id="leaveGroupButton"
+                class="secondary hidden"
+                onclick="leaveCurrentGroup()">
+                Leave
+            </button>
+
+        </div>
+
+
+        <div
+            id="chatMessages"
+            class="chat-messages">
+
+            <div class="chat-empty">
+
+                <div>💬</div>
+
+                <h3>
+                    No group selected
+                </h3>
+
+                <p>
+                    Select a study group on the left.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="chatInputArea"
+            class="chat-input-area hidden">
+
+            <input
+                id="chatInput"
+                type="text"
+                maxlength="500"
+                placeholder="Message your study group..."
+                onkeydown="handleChatKey(event)"
+            >
+
+            <button onclick="sendGroupMessage()">
+                Send
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+<!-- TOOLS -->
+
+<section
+    id="toolsSection"
+    class="app-section hidden">
+
+<div class="page-header">
+
+    <div>
+
+        <div class="tag">
+            STUDENT TOOLS
+        </div>
+
+        <h1>
+            Study <span>Tools</span>
+        </h1>
+
+        <p>
+            Everything you need to organize and study.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="tool-grid">
+
+
+    <!-- TIMER -->
+
+    <div class="tool-card">
+
+        <div class="tool-icon">
+            ⏱️
+        </div>
+
+        <h2>
+            Focus Timer
+        </h2>
+
+        <p>
+            Choose a focus session and get to work.
+        </p>
+
+        <div
+            id="timerDisplay"
+            class="timer-display">
+            25:00
+        </div>
+
+        <div class="tool-buttons">
+
+            <button onclick="setTimer(5)">
+                5 min
+            </button>
+
+            <button onclick="setTimer(15)">
+                15 min
+            </button>
+
+            <button onclick="setTimer(25)">
+                25 min
+            </button>
+
+            <button onclick="setTimer(45)">
+                45 min
+            </button>
+
+        </div>
+
+        <div class="tool-buttons">
+
+            <button onclick="startTimer()">
+                ▶ Start
+            </button>
+
+            <button onclick="pauseTimer()">
+                ⏸ Pause
+            </button>
+
+            <button onclick="resetTimer()">
+                ↻ Reset
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- CALCULATOR -->
+
+    <div class="tool-card">
+
+        <div class="tool-icon">
+            🧮
+        </div>
+
+        <h2>
+            Calculator
+        </h2>
+
+        <p>
+            Quick calculations.
+        </p>
+
+        <input
+            id="calculatorInput"
+            class="tool-input"
+            placeholder="Example: 25 * 4"
+        >
+
+        <button onclick="calculateTool()">
+            Calculate
+        </button>
+
+        <div
+            id="calculatorResult"
+            class="tool-result">
+            Result will appear here.
+        </div>
+
+    </div>
+
+
+    <!-- CALENDAR -->
+
+    <div class="tool-card calendar-tool">
+
+        <div class="tool-icon">
+            📅
+        </div>
+
+        <h2>
+            Calendar
+        </h2>
+
+        <p>
+            Keep track of important dates.
+        </p>
+
+        <input
+            id="calendarDate"
+            class="tool-input"
+            type="date"
+        >
+
+        <input
+            id="calendarEvent"
+            class="tool-input"
+            maxlength="80"
+            placeholder="Event name"
+        >
+
+        <button onclick="addCalendarEvent()">
+            + Add Event
+        </button>
+
+        <div
+            id="calendarEvents"
+            class="calendar-events">
+            No events yet.
+        </div>
+
+    </div>
+
+
+    <!-- DATA PLOTTER -->
+
+    <div class="tool-card plotter-tool">
+
+        <div class="tool-icon">
+            📊
+        </div>
+
+        <h2>
+            Data Plotter
+        </h2>
+
+        <p>
+            Turn numbers into a graph.
+        </p>
+
+        <input
+            id="plotLabels"
+            class="tool-input"
+            placeholder="Labels: Mon, Tue, Wed, Thu, Fri"
+        >
+
+        <input
+            id="plotValues"
+            class="tool-input"
+            placeholder="Values: 82, 88, 91, 87, 95"
+        >
+
+        <button onclick="plotData()">
+            📈 Create Graph
+        </button>
+
+        <canvas id="dataChart"></canvas>
+
+    </div>
+
+
+    <!-- NOTES -->
+
+    <div class="tool-card">
+
+        <div class="tool-icon">
+            📝
+        </div>
+
+        <h2>
+            Notes
+        </h2>
+
+        <p>
+            Write and save your study notes.
+        </p>
+
+        <input
+            id="noteTitle"
+            class="tool-input"
+            maxlength="80"
+            placeholder="Note title"
+        >
+
+        <textarea
+            id="noteText"
+            class="tool-input note-area"
+            maxlength="3000"
+            placeholder="Write your notes here..."
+        ></textarea>
+
+        <button onclick="saveNote()">
+            💾 Save Note
+        </button>
+
+        <div
+            id="notesList"
+            class="notes-list">
+            No saved notes yet.
+        </div>
+
+    </div>
+
+
+    <!-- WEB SEARCH -->
+
+    <div class="tool-card web-tool">
+
+        <div class="tool-icon">
+            🌐
+        </div>
+
+        <h2>
+            Web Search
+        </h2>
+
+        <p>
+            Search the web for school research.
+        </p>
+
+        <div class="web-search">
+
+            <input
+                id="webSearchInput"
+                class="tool-input"
+                placeholder="Search the web..."
+                onkeydown="handleWebSearchKey(event)"
+            >
+
+            <button onclick="searchWeb()">
+                Search
+            </button>
+
+        </div>
+
+        <div class="web-info">
+            🔎 Opens your search in a normal browser tab.
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+<!-- SHOP -->
+
+<section
+    id="shopSection"
+    class="app-section hidden">
+
+<div class="page-header">
+
+    <div>
+
+        <div class="tag">
+            ATOM ECONOMY
+        </div>
+
+        <h1>
+            Atom <span>Shop</span> 🛍️
+        </h1>
+
+        <p>
+            Spend your Atoms on virtual upgrades and cosmetics.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="shop-grid">
+
+
+    <div class="shop-item">
+
+        <div class="shop-icon">
+            🌌
+        </div>
+
+        <h2>
+            Galaxy Theme
+        </h2>
+
+        <p>
+            Give your dashboard a space theme.
+        </p>
+
+        <button onclick="buyItem('Galaxy Theme', 50)">
+            50 ⚛
+        </button>
+
+    </div>
+
+
+    <div class="shop-item">
+
+        <div class="shop-icon">
+            💜
+        </div>
+
+        <h2>
+            Neon Theme
+        </h2>
+
+        <p>
+            Unlock a futuristic neon style.
+        </p>
+
+        <button onclick="buyItem('Neon Theme', 75)">
+            75 ⚛
+        </button>
+
+    </div>
+
+
+    <div class="shop-item">
+
+        <div class="shop-icon">
+            🤖
+        </div>
+
+        <h2>
+            Robot Avatar
+        </h2>
+
+        <p>
+            Unlock a robot profile avatar.
+        </p>
+
+        <button onclick="buyItem('Robot Avatar', 150)">
+            150 ⚛
+        </button>
+
+    </div>
+
+
+    <div class="shop-item">
+
+        <div class="shop-icon">
+            ✨
+        </div>
+
+        <h2>
+            Profile Effect
+        </h2>
+
+        <p>
+            Add a special effect to your profile.
+        </p>
+
+        <button onclick="buyItem('Profile Effect', 100)">
+            100 ⚛
+        </button>
+
+    </div>
+
+
+    <div class="shop-item">
+
+        <div class="shop-icon">
+            🚀
+        </div>
+
+        <h2>
+            Space Background
+        </h2>
+
+        <p>
+            Unlock a new background.
+        </p>
+
+        <button onclick="buyItem('Space Background', 200)">
+            200 ⚛
+        </button>
+
+    </div>
+
+
+    <div class="shop-item">
+
+        <div class="shop-icon">
+            👑
+        </div>
+
+        <h2>
+            Premium Theme
+        </h2>
+
+        <p>
+            A special AtomScape Premium theme.
+        </p>
+
+        <button onclick="buyItem('Premium Theme', 300)">
+            300 ⚛
+        </button>
+
+    </div>
+
+</div>
+
+</section>
+
+</main>
+
+<!-- CREATE GROUP MODAL -->
+
+<div
+    id="createGroupModal"
+    class="modal hidden">
+
+<div class="modal-card">
+
+    <button
+        class="modal-close"
+        onclick="closeCreateGroup()">
+        ×
+    </button>
+
+    <div class="tag">
+        NEW STUDY GROUP
+    </div>
+
+    <h2>
+        Create a Study Group
+    </h2>
+
+    <p>
+        Create a group for classmates to study together.
+    </p>
+
+    <input
+        id="groupNameInput"
+        class="modal-input"
+        maxlength="60"
+        placeholder="Group name"
+    >
+
+    <textarea
+        id="groupDescriptionInput"
+        class="modal-input"
+        maxlength="200"
+        placeholder="What is this group for?"
+    ></textarea>
+
+    <button
+        class="main-button"
+        onclick="createStudyGroup()">
+        Create Group
+    </button>
+
+</div>
+
+</div>
+
+<div id="toast"></div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
