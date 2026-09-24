@@ -64,13 +64,58 @@ function showSection(sectionId, button) {
 // ==============================
 
 function updateAtoms() {
-    localStorage.setItem("atoms", atoms);
+    // Save the Atoms
+    localStorage.setItem("atoms", String(atoms));
 
-    const elements = document.querySelectorAll("#atomCount");
+    // Header Atom counter
+    const atomCounter = document.getElementById("atoms");
 
-    elements.forEach(element => {
-        element.textContent = atoms;
-    });
+    if (atomCounter) {
+        atomCounter.textContent = atoms;
+    }
+
+    // Big Atom card
+    const bigAtoms = document.getElementById("bigAtoms");
+
+    if (bigAtoms) {
+        bigAtoms.textContent = atoms;
+    }
+
+    // Progress bar
+    const progressBar = document.getElementById("progressBar");
+
+    if (progressBar) {
+        const progress = Math.min((atoms / 100) * 100, 100);
+        progressBar.style.width = `${progress}%`;
+    }
+
+    // Premium text
+    const premiumProgress =
+        document.getElementById("premiumProgress");
+
+    if (premiumProgress) {
+        if (atoms >= 100) {
+            premiumProgress.textContent =
+                "⭐ Premium unlocked!";
+        } else {
+            premiumProgress.textContent =
+                `${100 - atoms} Atoms until Premium`;
+        }
+    }
+
+    // Premium button
+    const premiumButton =
+        document.getElementById("premiumButton");
+
+    if (premiumButton) {
+        if (atoms >= 100) {
+            premiumButton.textContent =
+                "⭐ Unlock Premium";
+        } else {
+            premiumButton.textContent =
+                `Need ${100 - atoms} More Atoms`;
+        }
+    }
 }
 
 function dailyReward() {
@@ -81,28 +126,27 @@ function dailyReward() {
         return;
     }
 
-    atoms += 25;
+    atoms += 10;
 
     lastDailyReward = today;
 
-    localStorage.setItem("lastDailyReward", lastDailyReward);
+    localStorage.setItem(
+        "lastDailyReward",
+        lastDailyReward
+    );
 
     updateAtoms();
 
-    showToast("🎉 Daily reward claimed! +25 Atoms");
+    showToast("🎉 Daily reward claimed! +10 Atoms");
 }
 
 function unlockPremium() {
-    if (atoms < 300) {
-        showToast("❌ You need 300 Atoms!");
+    if (atoms < 100) {
+        showToast("❌ You need 100 Atoms!");
         return;
     }
 
-    atoms -= 300;
-
     localStorage.setItem("premium", "true");
-
-    updateAtoms();
 
     showToast("⭐ Premium unlocked!");
 }
@@ -112,41 +156,65 @@ function unlockPremium() {
 // ==============================
 
 function login() {
-    window.location.href = `${BACKEND}/auth/google`;
+    window.location.href =
+        `${BACKEND}/auth/google`;
 }
 
 async function disconnect() {
     try {
-        await fetch(`${BACKEND}/auth/disconnect`, {
-            credentials: "include"
-        });
+        await fetch(
+            `${BACKEND}/auth/disconnect`,
+            {
+                credentials: "include"
+            }
+        );
     } catch (error) {
         console.error(error);
     }
 
     updateConnectionUI(false);
 
-    showToast("Disconnected from Google Classroom");
+    showToast(
+        "Disconnected from Google Classroom"
+    );
 }
 
 function updateConnectionUI(connected, user = null) {
-    const loginButton = document.getElementById("loginButton");
-    const disconnectButton = document.getElementById("disconnectButton");
-    const connectionStatus = document.getElementById("connectionStatus");
-    const profileName = document.getElementById("profileName");
+    const loginButton =
+        document.getElementById("loginButton");
+
+    const disconnectButton =
+        document.getElementById("disconnectButton");
+
+    const connectionStatus =
+        document.getElementById("connectionStatus");
+
+    const profileName =
+        document.getElementById("profileName");
+
+    const heroLogin =
+        document.getElementById("heroLogin");
 
     if (loginButton) {
-        loginButton.style.display = connected ? "none" : "";
+        loginButton.style.display =
+            connected ? "none" : "";
     }
 
     if (disconnectButton) {
-        disconnectButton.style.display = connected ? "" : "none";
+        disconnectButton.style.display =
+            connected ? "" : "none";
     }
 
     if (connectionStatus) {
-        connectionStatus.textContent = connected
-            ? "Connected to Google Classroom"
-            : "Not connected";
+        connectionStatus.textContent =
+            connected
+                ? "Connected to Google Classroom"
+                : "Not connected";
+    }
+
+    if (heroLogin) {
+        heroLogin.style.display =
+            connected ? "none" : "";
     }
 
     if (profileName && user) {
@@ -159,9 +227,12 @@ function updateConnectionUI(connected, user = null) {
 
 async function checkConnection() {
     try {
-        const response = await fetch(`${BACKEND}/api/status`, {
-            credentials: "include"
-        });
+        const response = await fetch(
+            `${BACKEND}/api/status`,
+            {
+                credentials: "include"
+            }
+        );
 
         if (!response.ok) {
             updateConnectionUI(false);
@@ -171,14 +242,22 @@ async function checkConnection() {
         const data = await response.json();
 
         if (data.connected) {
-            updateConnectionUI(true, data.user);
+            updateConnectionUI(
+                true,
+                data.user
+            );
+
             await loadClassroom();
         } else {
             updateConnectionUI(false);
         }
 
     } catch (error) {
-        console.error("Connection check failed:", error);
+        console.error(
+            "Connection check failed:",
+            error
+        );
+
         updateConnectionUI(false);
     }
 }
@@ -201,12 +280,20 @@ function escapeHTML(value) {
 // ==============================
 
 async function loadClassroom() {
-    const classesElement = document.getElementById("classes");
-    const assignmentsElement = document.getElementById("assignments");
-    const assignmentCount = document.getElementById("assignmentCount");
+    const classesElement =
+        document.getElementById("classes");
+
+    const assignmentsElement =
+        document.getElementById("assignments");
+
+    const assignmentCount =
+        document.getElementById("assignmentCount");
 
     if (!classesElement) {
-        console.error("Could not find #classes");
+        console.error(
+            "Could not find #classes"
+        );
+
         return;
     }
 
@@ -217,27 +304,31 @@ async function loadClassroom() {
     `;
 
     try {
-        const response = await fetch(`${BACKEND}/api/courses`, {
-            credentials: "include"
-        });
-
-        console.log("Courses response status:", response.status);
+        const response = await fetch(
+            `${BACKEND}/api/courses`,
+            {
+                credentials: "include"
+            }
+        );
 
         if (!response.ok) {
-            throw new Error(`Courses request failed: ${response.status}`);
+            throw new Error(
+                `Courses request failed: ${response.status}`
+            );
         }
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
-        console.log("Google Classroom data:", data);
+        const studentCourses =
+            Array.isArray(data.studentCourses)
+                ? data.studentCourses
+                : [];
 
-        const studentCourses = Array.isArray(data.studentCourses)
-            ? data.studentCourses
-            : [];
-
-        const teacherCourses = Array.isArray(data.teacherCourses)
-            ? data.teacherCourses
-            : [];
+        const teacherCourses =
+            Array.isArray(data.teacherCourses)
+                ? data.teacherCourses
+                : [];
 
         const allCourses = [
             ...studentCourses,
@@ -266,85 +357,111 @@ async function loadClassroom() {
             return;
         }
 
-        classesElement.className = "class-list";
+        classesElement.className =
+            "class-list";
 
-        classesElement.innerHTML = allCourses.map(course => {
+        classesElement.innerHTML =
+            allCourses.map(course => {
 
-            const isArchived = course.courseState === "ARCHIVED";
+                const isArchived =
+                    course.courseState === "ARCHIVED";
 
-            return `
-                <div class="class-card">
+                return `
+                    <div class="class-card">
 
-                    <div class="class-card-top">
+                        <div class="class-card-top">
 
-                        <div class="class-icon">
-                            📚
+                            <div class="class-icon">
+                                📚
+                            </div>
+
+                            <div class="class-info">
+
+                                <h3>
+                                    ${escapeHTML(
+                                        course.name ||
+                                        "Unnamed Class"
+                                    )}
+                                </h3>
+
+                                <p>
+                                    ${escapeHTML(
+                                        course.section ||
+                                        course.subject ||
+                                        "Google Classroom"
+                                    )}
+                                </p>
+
+                            </div>
+
                         </div>
 
-                        <div class="class-info">
+                        <div class="class-details">
 
-                            <h3>
-                                ${escapeHTML(course.name || "Unnamed Class")}
-                            </h3>
-
-                            <p>
-                                ${escapeHTML(course.section || course.subject || "Google Classroom")}
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                    <div class="class-details">
-
-                        ${
-                            course.room
-                                ? `<span>📍 ${escapeHTML(course.room)}</span>`
-                                : ""
-                        }
-
-                        ${
-                            course.subject
-                                ? `<span>📘 ${escapeHTML(course.subject)}</span>`
-                                : ""
-                        }
-
-                        <span>
                             ${
-                                isArchived
-                                    ? "📦 Archived"
-                                    : "🟢 Active"
+                                course.room
+                                    ? `
+                                        <span>
+                                            📍 ${escapeHTML(
+                                                course.room
+                                            )}
+                                        </span>
+                                    `
+                                    : ""
                             }
-                        </span>
+
+                            ${
+                                course.subject
+                                    ? `
+                                        <span>
+                                            📘 ${escapeHTML(
+                                                course.subject
+                                            )}
+                                        </span>
+                                    `
+                                    : ""
+                            }
+
+                            <span>
+                                ${
+                                    isArchived
+                                        ? "📦 Archived"
+                                        : "🟢 Active"
+                                }
+                            </span>
+
+                        </div>
+
+                        ${
+                            course.alternateLink
+                                ? `
+                                    <a
+                                        class="class-link"
+                                        href="${course.alternateLink}"
+                                        target="_blank"
+                                        rel="noopener noreferrer">
+                                        Open in Google Classroom →
+                                    </a>
+                                `
+                                : ""
+                        }
 
                     </div>
+                `;
+            }).join("");
 
-                    ${
-                        course.alternateLink
-                            ? `
-                                <a
-                                    class="class-link"
-                                    href="${course.alternateLink}"
-                                    target="_blank"
-                                    rel="noopener noreferrer">
-                                    Open in Google Classroom →
-                                </a>
-                            `
-                            : ""
-                    }
+        // ==============================
+        // ASSIGNMENTS
+        // ==============================
 
-                </div>
-            `;
-        }).join("");
-
-        // Load assignments separately.
         try {
-            const assignmentResponse = await fetch(
-                `${BACKEND}/api/teacher-coursework`,
-                {
-                    credentials: "include"
-                }
-            );
+            const assignmentResponse =
+                await fetch(
+                    `${BACKEND}/api/teacher-coursework`,
+                    {
+                        credentials: "include"
+                    }
+                );
 
             if (!assignmentResponse.ok) {
                 throw new Error(
@@ -352,16 +469,13 @@ async function loadClassroom() {
                 );
             }
 
-            const assignmentData = await assignmentResponse.json();
+            const assignmentData =
+                await assignmentResponse.json();
 
-            console.log(
-                "Assignment data:",
-                assignmentData
-            );
-
-            const assignments = Array.isArray(assignmentData)
-                ? assignmentData
-                : assignmentData.assignments || [];
+            const assignments =
+                Array.isArray(assignmentData)
+                    ? assignmentData
+                    : assignmentData.assignments || [];
 
             if (assignmentCount) {
                 assignmentCount.textContent =
@@ -375,38 +489,40 @@ async function loadClassroom() {
                     </div>
                 `;
             } else {
-                assignmentsElement.className = "assignment-list";
+                assignmentsElement.className =
+                    "assignment-list";
 
                 assignmentsElement.innerHTML =
-                    assignments.map(assignment => `
-                        <div class="assignment-card">
+                    assignments.map(
+                        assignment => `
+                            <div class="assignment-card">
 
-                            <h3>
-                                ${escapeHTML(
-                                    assignment.title ||
-                                    assignment.name ||
-                                    "Assignment"
-                                )}
-                            </h3>
+                                <h3>
+                                    ${escapeHTML(
+                                        assignment.title ||
+                                        assignment.name ||
+                                        "Assignment"
+                                    )}
+                                </h3>
 
-                            ${
-                                assignment.courseName
-                                    ? `
-                                        <p>
-                                            📚 ${escapeHTML(
-                                                assignment.courseName
-                                            )}
-                                        </p>
-                                    `
-                                    : ""
-                            }
+                                ${
+                                    assignment.courseName
+                                        ? `
+                                            <p>
+                                                📚 ${escapeHTML(
+                                                    assignment.courseName
+                                                )}
+                                            </p>
+                                        `
+                                        : ""
+                                }
 
-                        </div>
-                    `).join("");
+                            </div>
+                        `
+                    ).join("");
             }
 
         } catch (assignmentError) {
-
             console.error(
                 "Could not load assignments:",
                 assignmentError
@@ -416,15 +532,17 @@ async function loadClassroom() {
                 assignmentCount.textContent = "0";
             }
 
-            assignmentsElement.innerHTML = `
-                <div class="empty">
-                    Classes loaded, but assignments could not be loaded.
-                </div>
-            `;
+            if (assignmentsElement) {
+                assignmentsElement.innerHTML = `
+                    <div class="empty">
+                        Classes loaded, but assignments
+                        could not be loaded.
+                    </div>
+                `;
+            }
         }
 
     } catch (error) {
-
         console.error(
             "Could not load Google Classroom:",
             error
@@ -442,48 +560,37 @@ async function loadClassroom() {
     }
 }
 
-function formatDate(dateObject) {
-    if (!dateObject) {
-        return "No due date";
-    }
-
-    try {
-        let date;
-
-        if (typeof dateObject === "string") {
-            date = new Date(dateObject);
-        } else {
-            date = new Date(
-                dateObject.year,
-                dateObject.month - 1,
-                dateObject.day
-            );
-        }
-
-        if (Number.isNaN(date.getTime())) {
-            return "No due date";
-        }
-
-        return date.toLocaleDateString();
-    } catch {
-        return "No due date";
-    }
-}
-
 // ==============================
 // STUDY GROUPS
 // ==============================
 
 function openCreateGroup() {
-    const modal = document.getElementById("createGroupModal");
+    const modal =
+        document.getElementById(
+            "createGroupModal"
+        );
 
     if (modal) {
         modal.classList.remove("hidden");
+
+        const input =
+            document.getElementById(
+                "groupNameInput"
+            );
+
+        if (input) {
+            setTimeout(() => {
+                input.focus();
+            }, 100);
+        }
     }
 }
 
 function closeCreateGroup() {
-    const modal = document.getElementById("createGroupModal");
+    const modal =
+        document.getElementById(
+            "createGroupModal"
+        );
 
     if (modal) {
         modal.classList.add("hidden");
@@ -492,18 +599,22 @@ function closeCreateGroup() {
 
 async function loadStudyGroups() {
     try {
-        const response = await fetch(
-            `${BACKEND}/api/study-groups`,
-            {
-                credentials: "include"
-            }
-        );
+        const response =
+            await fetch(
+                `${BACKEND}/api/study-groups`,
+                {
+                    credentials: "include"
+                }
+            );
 
         if (!response.ok) {
-            throw new Error("Could not load study groups");
+            throw new Error(
+                "Could not load study groups"
+            );
         }
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
         const groups =
             Array.isArray(data)
@@ -511,7 +622,9 @@ async function loadStudyGroups() {
                 : data.groups || [];
 
         const container =
-            document.getElementById("studyGroupsList");
+            document.getElementById(
+                "studyGroupsList"
+            );
 
         if (!container) return;
 
@@ -522,113 +635,166 @@ async function loadStudyGroups() {
                     Create the first one!
                 </div>
             `;
+
             return;
         }
 
-        container.innerHTML = groups.map(group => {
-            const isMember = group.isMember === true;
+        container.innerHTML =
+            groups.map(group => {
 
-            return `
-                <div class="group-card">
+                const isMember =
+                    group.isMember === true;
 
-                    <div class="group-card-icon">
-                        📚
+                return `
+                    <div class="group-card">
+
+                        <div class="group-card-icon">
+                            📚
+                        </div>
+
+                        <div class="group-card-content">
+
+                            <h3>
+                                ${escapeHTML(
+                                    group.name ||
+                                    "Study Group"
+                                )}
+                            </h3>
+
+                            <p>
+                                ${escapeHTML(
+                                    group.description ||
+                                    "A place to study together."
+                                )}
+                            </p>
+
+                            <span>
+                                👥 ${
+                                    group.memberCount || 0
+                                } members
+                            </span>
+
+                        </div>
+
+                        <button
+                            onclick="${
+                                isMember
+                                    ? `selectStudyGroup('${group.id}')`
+                                    : `joinGroup('${group.id}')`
+                            }"
+                        >
+                            ${
+                                isMember
+                                    ? "Open Group"
+                                    : "Join Group"
+                            }
+                        </button>
+
                     </div>
-
-                    <div class="group-card-content">
-
-                        <h3>
-                            ${escapeHTML(
-                                group.name || "Study Group"
-                            )}
-                        </h3>
-
-                        <p>
-                            ${escapeHTML(
-                                group.description ||
-                                "A place to study together."
-                            )}
-                        </p>
-
-                        <span>
-                            👥 ${group.memberCount || 0} members
-                        </span>
-
-                    </div>
-
-                    <button
-                        onclick="${
-                            isMember
-                                ? `selectStudyGroup('${group.id}')`
-                                : `joinGroup('${group.id}')`
-                        }"
-                    >
-                        ${
-                            isMember
-                                ? "Open Group"
-                                : "Join Group"
-                        }
-                    </button>
-
-                </div>
-            `;
-        }).join("");
+                `;
+            }).join("");
 
     } catch (error) {
-        console.error("Study groups error:", error);
+        console.error(
+            "Study groups error:",
+            error
+        );
 
-        showToast("❌ Could not load study groups");
+        showToast(
+            "❌ Could not load study groups"
+        );
     }
 }
 
+// ==============================
+// CREATE STUDY GROUP
+// ==============================
+
 async function createStudyGroup() {
+
+    // IMPORTANT:
+    // These IDs now match index.html
+
     const nameInput =
-        document.getElementById("groupName");
+        document.getElementById(
+            "groupNameInput"
+        );
 
     const descriptionInput =
-        document.getElementById("groupDescription");
+        document.getElementById(
+            "groupDescriptionInput"
+        );
+
+    if (!nameInput) {
+        showToast(
+            "❌ Group name field was not found."
+        );
+
+        console.error(
+            "Missing #groupNameInput"
+        );
+
+        return;
+    }
 
     const name =
-        nameInput?.value.trim();
+        nameInput.value.trim();
 
     const description =
-        descriptionInput?.value.trim();
+        descriptionInput
+            ? descriptionInput.value.trim()
+            : "";
 
     if (!name) {
-        showToast("Please enter a group name");
+        showToast(
+            "Please enter a group name"
+        );
+
+        nameInput.focus();
+
+        return;
+    }
+
+    if (name.length > 60) {
+        showToast(
+            "Group name is too long."
+        );
+
         return;
     }
 
     try {
-        const response = await fetch(
-            `${BACKEND}/api/study-groups`,
-            {
-                method: "POST",
+        const response =
+            await fetch(
+                `${BACKEND}/api/study-groups`,
+                {
+                    method: "POST",
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-                credentials: "include",
+                    credentials: "include",
 
-                body: JSON.stringify({
-                    name,
-                    description
-                })
-            }
-        );
+                    body: JSON.stringify({
+                        name: name,
+                        description: description
+                    })
+                }
+            );
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
         if (!response.ok) {
             throw new Error(
-                data.error || "Could not create group"
+                data.error ||
+                "Could not create group"
             );
         }
 
-        if (nameInput) {
-            nameInput.value = "";
-        }
+        nameInput.value = "";
 
         if (descriptionInput) {
             descriptionInput.value = "";
@@ -639,13 +805,20 @@ async function createStudyGroup() {
         await loadStudyGroups();
 
         if (data.group) {
-            await selectStudyGroup(data.group.id);
+            await selectStudyGroup(
+                data.group.id
+            );
         }
 
-        showToast("🎉 Study group created!");
+        showToast(
+            "🎉 Study group created!"
+        );
 
     } catch (error) {
-        console.error(error);
+        console.error(
+            "Create group error:",
+            error
+        );
 
         showToast(
             "❌ " + error.message
@@ -653,20 +826,27 @@ async function createStudyGroup() {
     }
 }
 
+// ==============================
+// SELECT STUDY GROUP
+// ==============================
+
 async function selectStudyGroup(groupId) {
     try {
-        const response = await fetch(
-            `${BACKEND}/api/study-groups/${encodeURIComponent(groupId)}`,
-            {
-                credentials: "include"
-            }
-        );
+        const response =
+            await fetch(
+                `${BACKEND}/api/study-groups/${encodeURIComponent(groupId)}`,
+                {
+                    credentials: "include"
+                }
+            );
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
         if (!response.ok) {
             throw new Error(
-                data.error || "Could not open group"
+                data.error ||
+                "Could not open group"
             );
         }
 
@@ -688,19 +868,43 @@ async function selectStudyGroup(groupId) {
     }
 }
 
+// ==============================
+// RENDER CURRENT GROUP
+// ==============================
+
 function renderCurrentGroup() {
+
     const nameElement =
-        document.getElementById("currentGroupName");
+        document.getElementById(
+            "chatGroupName"
+        );
 
-    const descriptionElement =
-        document.getElementById("currentGroupDescription");
+    const membersElement =
+        document.getElementById(
+            "chatGroupMembers"
+        );
 
-    const chatPanel =
-        document.getElementById("chatPanel");
+    const chatInputArea =
+        document.getElementById(
+            "chatInputArea"
+        );
+
+    const leaveButton =
+        document.getElementById(
+            "leaveGroupButton"
+        );
 
     if (!currentGroup) {
-        if (chatPanel) {
-            chatPanel.classList.add("hidden");
+        if (chatInputArea) {
+            chatInputArea.classList.add(
+                "hidden"
+            );
+        }
+
+        if (leaveButton) {
+            leaveButton.classList.add(
+                "hidden"
+            );
         }
 
         return;
@@ -708,42 +912,67 @@ function renderCurrentGroup() {
 
     if (nameElement) {
         nameElement.textContent =
-            currentGroup.name || "Study Group";
+            "💬 " +
+            (
+                currentGroup.name ||
+                "Study Group"
+            );
     }
 
-    if (descriptionElement) {
-        descriptionElement.textContent =
-            currentGroup.description || "";
+    if (membersElement) {
+        membersElement.textContent =
+            `👥 ${
+                currentGroup.memberCount || 0
+            } members`;
     }
 
-    if (chatPanel) {
-        chatPanel.classList.remove("hidden");
+    if (chatInputArea) {
+        chatInputArea.classList.remove(
+            "hidden"
+        );
+    }
+
+    if (leaveButton) {
+        leaveButton.classList.remove(
+            "hidden"
+        );
     }
 }
 
+// ==============================
+// JOIN GROUP
+// ==============================
+
 async function joinGroup(groupId) {
     try {
-        const response = await fetch(
-            `${BACKEND}/api/study-groups/${encodeURIComponent(groupId)}/join`,
-            {
-                method: "POST",
-                credentials: "include"
-            }
-        );
+        const response =
+            await fetch(
+                `${BACKEND}/api/study-groups/${encodeURIComponent(groupId)}/join`,
+                {
+                    method: "POST",
+                    credentials: "include"
+                }
+            );
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
         if (!response.ok) {
             throw new Error(
-                data.error || "Could not join group"
+                data.error ||
+                "Could not join group"
             );
         }
 
-        showToast("✅ Joined study group!");
+        showToast(
+            "✅ Joined study group!"
+        );
 
         await loadStudyGroups();
 
-        await selectStudyGroup(groupId);
+        await selectStudyGroup(
+            groupId
+        );
 
     } catch (error) {
         console.error(error);
@@ -754,31 +983,42 @@ async function joinGroup(groupId) {
     }
 }
 
+// ==============================
+// LEAVE GROUP
+// ==============================
+
 async function leaveCurrentGroup() {
+
     if (!currentGroup) {
         return;
     }
 
-    const groupId = currentGroup.id;
+    const groupId =
+        currentGroup.id;
 
-    if (!confirm("Leave this study group?")) {
+    if (!confirm(
+        "Leave this study group?"
+    )) {
         return;
     }
 
     try {
-        const response = await fetch(
-            `${BACKEND}/api/study-groups/${encodeURIComponent(groupId)}/leave`,
-            {
-                method: "POST",
-                credentials: "include"
-            }
-        );
+        const response =
+            await fetch(
+                `${BACKEND}/api/study-groups/${encodeURIComponent(groupId)}/leave`,
+                {
+                    method: "POST",
+                    credentials: "include"
+                }
+            );
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
         if (!response.ok) {
             throw new Error(
-                data.error || "Could not leave group"
+                data.error ||
+                "Could not leave group"
             );
         }
 
@@ -790,7 +1030,9 @@ async function leaveCurrentGroup() {
 
         await loadStudyGroups();
 
-        showToast("You left the study group.");
+        showToast(
+            "You left the study group."
+        );
 
     } catch (error) {
         console.error(error);
@@ -801,24 +1043,31 @@ async function leaveCurrentGroup() {
     }
 }
 
+// ==============================
+// GROUP MESSAGES
+// ==============================
+
 async function loadGroupMessages() {
+
     if (!currentGroup) {
         return;
     }
 
     try {
-        const response = await fetch(
-            `${BACKEND}/api/study-groups/${encodeURIComponent(currentGroup.id)}/messages`,
-            {
-                credentials: "include"
-            }
-        );
+        const response =
+            await fetch(
+                `${BACKEND}/api/study-groups/${encodeURIComponent(currentGroup.id)}/messages`,
+                {
+                    credentials: "include"
+                }
+            );
 
         if (!response.ok) {
             return;
         }
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
         const messages =
             Array.isArray(data)
@@ -826,64 +1075,75 @@ async function loadGroupMessages() {
                 : data.messages || [];
 
         const container =
-            document.getElementById("chatMessages");
+            document.getElementById(
+                "chatMessages"
+            );
 
-        if (!container) return;
+        if (!container) {
+            return;
+        }
 
         if (messages.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
-                    No messages yet. Start the conversation!
+                    No messages yet.
+                    Start the conversation!
                 </div>
             `;
+
             return;
         }
 
-        container.innerHTML = messages.map(message => `
-            <div class="message">
+        container.innerHTML =
+            messages.map(message => `
+                <div class="message">
 
-                <div class="message-header">
-                    <strong>
+                    <div class="message-header">
+
+                        <strong>
+                            ${escapeHTML(
+                                message.userName ||
+                                message.authorName ||
+                                "Student"
+                            )}
+                        </strong>
+
+                        <span>
+                            ${formatMessageTime(
+                                message.createdAt
+                            )}
+                        </span>
+
+                    </div>
+
+                    <div class="message-text">
                         ${escapeHTML(
-                            message.userName ||
-                            message.authorName ||
-                            "Student"
+                            message.text || ""
                         )}
-                    </strong>
+                    </div>
 
-                    <span>
-                        ${formatMessageTime(
-                            message.createdAt
-                        )}
-                    </span>
+                    <div class="message-actions">
+
+                        <button
+                            onclick="reportMessage('${message.id}')">
+                            Report
+                        </button>
+
+                        ${
+                            message.isOwner
+                                ? `
+                                    <button
+                                        onclick="deleteMessage('${message.id}')">
+                                        Delete
+                                    </button>
+                                `
+                                : ""
+                        }
+
+                    </div>
+
                 </div>
-
-                <div class="message-text">
-                    ${escapeHTML(message.text || "")}
-                </div>
-
-                <div class="message-actions">
-                    <button
-                        onclick="reportMessage('${message.id}')"
-                    >
-                        Report
-                    </button>
-
-                    ${
-                        message.isOwner
-                            ? `
-                                <button
-                                    onclick="deleteMessage('${message.id}')"
-                                >
-                                    Delete
-                                </button>
-                            `
-                            : ""
-                    }
-                </div>
-
-            </div>
-        `).join("");
+            `).join("");
 
         container.scrollTop =
             container.scrollHeight;
@@ -901,35 +1161,55 @@ function formatMessageTime(timestamp) {
         return "";
     }
 
-    const date = new Date(timestamp);
+    const date =
+        new Date(timestamp);
 
-    if (Number.isNaN(date.getTime())) {
+    if (Number.isNaN(
+        date.getTime()
+    )) {
         return "";
     }
 
-    return date.toLocaleTimeString([], {
-        hour: "numeric",
-        minute: "2-digit"
-    });
+    return date.toLocaleTimeString(
+        [],
+        {
+            hour: "numeric",
+            minute: "2-digit"
+        }
+    );
 }
 
 function startMessagePolling() {
     stopMessagePolling();
 
-    messageTimer = setInterval(() => {
-        loadGroupMessages();
-    }, 3000);
+    messageTimer =
+        setInterval(
+            () => {
+                loadGroupMessages();
+            },
+            3000
+        );
 }
 
 function stopMessagePolling() {
     if (messageTimer) {
-        clearInterval(messageTimer);
+        clearInterval(
+            messageTimer
+        );
+
         messageTimer = null;
     }
 }
 
+// ==============================
+// CHAT
+// ==============================
+
 function handleChatKey(event) {
-    if (event.key === "Enter" && !event.shiftKey) {
+    if (
+        event.key === "Enter" &&
+        !event.shiftKey
+    ) {
         event.preventDefault();
 
         sendGroupMessage();
@@ -937,15 +1217,28 @@ function handleChatKey(event) {
 }
 
 async function sendGroupMessage() {
+
     if (!currentGroup) {
-        showToast("Join a group first.");
+        showToast(
+            "Join a group first."
+        );
+
         return;
     }
 
+    // FIXED: matches index.html
     const input =
-        document.getElementById("chatMessageInput");
+        document.getElementById(
+            "chatInput"
+        );
 
-    if (!input) return;
+    if (!input) {
+        console.error(
+            "Missing #chatInput"
+        );
+
+        return;
+    }
 
     const text =
         input.value.trim();
@@ -954,34 +1247,41 @@ async function sendGroupMessage() {
         return;
     }
 
-    if (text.length > 1000) {
-        showToast("Message is too long.");
+    if (text.length > 500) {
+        showToast(
+            "Message is too long."
+        );
+
         return;
     }
 
     try {
-        const response = await fetch(
-            `${BACKEND}/api/study-groups/${encodeURIComponent(currentGroup.id)}/messages`,
-            {
-                method: "POST",
+        const response =
+            await fetch(
+                `${BACKEND}/api/study-groups/${encodeURIComponent(currentGroup.id)}/messages`,
+                {
+                    method: "POST",
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-                credentials: "include",
+                    credentials: "include",
 
-                body: JSON.stringify({
-                    text
-                })
-            }
-        );
+                    body: JSON.stringify({
+                        text
+                    })
+                }
+            );
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
         if (!response.ok) {
             throw new Error(
-                data.error || "Could not send message"
+                data.error ||
+                "Could not send message"
             );
         }
 
@@ -998,31 +1298,41 @@ async function sendGroupMessage() {
     }
 }
 
+// ==============================
+// DELETE MESSAGE
+// ==============================
+
 async function deleteMessage(messageId) {
+
     if (!currentGroup) {
         return;
     }
 
     try {
-        const response = await fetch(
-            `${BACKEND}/api/study-groups/${encodeURIComponent(currentGroup.id)}/messages/${encodeURIComponent(messageId)}`,
-            {
-                method: "DELETE",
-                credentials: "include"
-            }
-        );
+        const response =
+            await fetch(
+                `${BACKEND}/api/study-groups/${encodeURIComponent(currentGroup.id)}/messages/${encodeURIComponent(messageId)}`,
+                {
+                    method: "DELETE",
+                    credentials: "include"
+                }
+            );
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
         if (!response.ok) {
             throw new Error(
-                data.error || "Could not delete message"
+                data.error ||
+                "Could not delete message"
             );
         }
 
         await loadGroupMessages();
 
-        showToast("Message deleted.");
+        showToast(
+            "Message deleted."
+        );
 
     } catch (error) {
         console.error(error);
@@ -1033,29 +1343,39 @@ async function deleteMessage(messageId) {
     }
 }
 
+// ==============================
+// REPORT MESSAGE
+// ==============================
+
 async function reportMessage(messageId) {
+
     if (!currentGroup) {
         return;
     }
 
     try {
-        const response = await fetch(
-            `${BACKEND}/api/study-groups/${encodeURIComponent(currentGroup.id)}/messages/${encodeURIComponent(messageId)}/report`,
-            {
-                method: "POST",
-                credentials: "include"
-            }
-        );
+        const response =
+            await fetch(
+                `${BACKEND}/api/study-groups/${encodeURIComponent(currentGroup.id)}/messages/${encodeURIComponent(messageId)}/report`,
+                {
+                    method: "POST",
+                    credentials: "include"
+                }
+            );
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
         if (!response.ok) {
             throw new Error(
-                data.error || "Could not report message"
+                data.error ||
+                "Could not report message"
             );
         }
 
-        showToast("🚩 Message reported.");
+        showToast(
+            "🚩 Message reported."
+        );
 
     } catch (error) {
         console.error(error);
@@ -1071,13 +1391,20 @@ async function reportMessage(messageId) {
 // ==============================
 
 function updateTimerDisplay() {
-    const display =
-        document.getElementById("timerDisplay");
 
-    if (!display) return;
+    const display =
+        document.getElementById(
+            "timerDisplay"
+        );
+
+    if (!display) {
+        return;
+    }
 
     const minutes =
-        Math.floor(timerSeconds / 60);
+        Math.floor(
+            timerSeconds / 60
+        );
 
     const seconds =
         timerSeconds % 60;
@@ -1087,58 +1414,84 @@ function updateTimerDisplay() {
 }
 
 function startTimer() {
+
     if (timerRunning) {
         return;
     }
 
     timerRunning = true;
 
-    timerInterval = setInterval(() => {
+    timerInterval =
+        setInterval(
+            () => {
 
-        if (timerSeconds <= 0) {
-            finishTimer();
-            return;
-        }
+                if (
+                    timerSeconds <= 0
+                ) {
+                    finishTimer();
+                    return;
+                }
 
-        timerSeconds--;
+                timerSeconds--;
 
-        updateTimerDisplay();
+                updateTimerDisplay();
 
-    }, 1000);
+            },
+            1000
+        );
 
-    showToast("▶️ Timer started!");
+    showToast(
+        "▶️ Timer started!"
+    );
 }
 
 function pauseTimer() {
+
     if (!timerRunning) {
         return;
     }
 
-    clearInterval(timerInterval);
+    clearInterval(
+        timerInterval
+    );
 
     timerInterval = null;
+
     timerRunning = false;
 
-    showToast("⏸️ Timer paused");
+    showToast(
+        "⏸️ Timer paused"
+    );
 }
 
 function resetTimer() {
-    clearInterval(timerInterval);
+
+    clearInterval(
+        timerInterval
+    );
 
     timerInterval = null;
+
     timerRunning = false;
 
-    timerSeconds = 25 * 60;
+    timerSeconds =
+        25 * 60;
 
     updateTimerDisplay();
 
-    showToast("🔄 Timer reset");
+    showToast(
+        "🔄 Timer reset"
+    );
 }
 
 function finishTimer() {
-    clearInterval(timerInterval);
+
+    clearInterval(
+        timerInterval
+    );
 
     timerInterval = null;
+
     timerRunning = false;
 
     timerSeconds = 0;
@@ -1155,12 +1508,17 @@ function finishTimer() {
 }
 
 function setTimer(minutes) {
-    clearInterval(timerInterval);
+
+    clearInterval(
+        timerInterval
+    );
 
     timerInterval = null;
+
     timerRunning = false;
 
-    timerSeconds = minutes * 60;
+    timerSeconds =
+        minutes * 60;
 
     updateTimerDisplay();
 
@@ -1174,11 +1532,16 @@ function setTimer(minutes) {
 // ==============================
 
 function calculateTool() {
+
     const input =
-        document.getElementById("calculatorInput");
+        document.getElementById(
+            "calculatorInput"
+        );
 
     const result =
-        document.getElementById("calculatorResult");
+        document.getElementById(
+            "calculatorResult"
+        );
 
     if (!input || !result) {
         return;
@@ -1195,15 +1558,27 @@ function calculateTool() {
     }
 
     try {
-        if (!/^[0-9+\-*/().%\s]+$/.test(expression)) {
-            throw new Error("Invalid characters");
+
+        if (
+            !/^[0-9+\-*/().%\s]+$/
+                .test(expression)
+        ) {
+            throw new Error(
+                "Invalid characters"
+            );
         }
 
         const answer =
-            Function(`"use strict"; return (${expression})`)();
+            Function(
+                `"use strict"; return (${expression})`
+            )();
 
-        if (!Number.isFinite(answer)) {
-            throw new Error("Invalid result");
+        if (
+            !Number.isFinite(answer)
+        ) {
+            throw new Error(
+                "Invalid result"
+            );
         }
 
         result.textContent =
@@ -1219,7 +1594,11 @@ function calculateTool() {
 // SHOP
 // ==============================
 
-function buyItem(itemName, price) {
+function buyItem(
+    itemName,
+    price
+) {
+
     if (atoms < price) {
         showToast(
             `❌ You need ${price} Atoms`
@@ -1234,11 +1613,19 @@ function buyItem(itemName, price) {
 
     const purchased =
         JSON.parse(
-            localStorage.getItem("atomscapePurchases") || "[]"
+            localStorage.getItem(
+                "atomscapePurchases"
+            ) || "[]"
         );
 
-    if (!purchased.includes(itemName)) {
-        purchased.push(itemName);
+    if (
+        !purchased.includes(
+            itemName
+        )
+    ) {
+        purchased.push(
+            itemName
+        );
     }
 
     localStorage.setItem(
@@ -1257,24 +1644,36 @@ function buyItem(itemName, price) {
 
 let calendarEvents =
     JSON.parse(
-        localStorage.getItem("atomscapeCalendar") || "[]"
+        localStorage.getItem(
+            "atomscapeCalendar"
+        ) || "[]"
     );
 
 function saveCalendarEvents() {
     localStorage.setItem(
         "atomscapeCalendar",
-        JSON.stringify(calendarEvents)
+        JSON.stringify(
+            calendarEvents
+        )
     );
 }
 
 function addCalendarEvent() {
+
     const dateInput =
-        document.getElementById("calendarDate");
+        document.getElementById(
+            "calendarDate"
+        );
 
     const eventInput =
-        document.getElementById("calendarEvent");
+        document.getElementById(
+            "calendarEvent"
+        );
 
-    if (!dateInput || !eventInput) {
+    if (
+        !dateInput ||
+        !eventInput
+    ) {
         return;
     }
 
@@ -1310,13 +1709,17 @@ function addCalendarEvent() {
 
     renderCalendarEvents();
 
-    showToast("📅 Event added!");
+    showToast(
+        "📅 Event added!"
+    );
 }
 
 function deleteCalendarEvent(id) {
+
     calendarEvents =
         calendarEvents.filter(
-            event => event.id !== id
+            event =>
+                event.id !== id
         );
 
     saveCalendarEvents();
@@ -1325,14 +1728,19 @@ function deleteCalendarEvent(id) {
 }
 
 function renderCalendarEvents() {
+
     const container =
-        document.getElementById("calendarEvents");
+        document.getElementById(
+            "calendarEvents"
+        );
 
     if (!container) {
         return;
     }
 
-    if (calendarEvents.length === 0) {
+    if (
+        calendarEvents.length === 0
+    ) {
         container.innerHTML =
             "No events yet.";
 
@@ -1340,27 +1748,34 @@ function renderCalendarEvents() {
     }
 
     container.innerHTML =
-        calendarEvents.map(event => `
-            <div class="calendar-event">
+        calendarEvents.map(
+            event => `
+                <div class="calendar-event">
 
-                <div>
-                    <strong>
-                        ${escapeHTML(event.name)}
-                    </strong>
+                    <div>
 
-                    <small>
-                        ${escapeHTML(event.date)}
-                    </small>
+                        <strong>
+                            ${escapeHTML(
+                                event.name
+                            )}
+                        </strong>
+
+                        <small>
+                            ${escapeHTML(
+                                event.date
+                            )}
+                        </small>
+
+                    </div>
+
+                    <button
+                        onclick="deleteCalendarEvent('${event.id}')">
+                        ✕
+                    </button>
+
                 </div>
-
-                <button
-                    onclick="deleteCalendarEvent('${event.id}')"
-                >
-                    ✕
-                </button>
-
-            </div>
-        `).join("");
+            `
+        ).join("");
 }
 
 // ==============================
@@ -1370,35 +1785,57 @@ function renderCalendarEvents() {
 let dataChart = null;
 
 function plotData() {
+
     const labelsInput =
-        document.getElementById("plotLabels");
+        document.getElementById(
+            "plotLabels"
+        );
 
     const valuesInput =
-        document.getElementById("plotValues");
+        document.getElementById(
+            "plotValues"
+        );
 
     const canvas =
-        document.getElementById("dataChart");
+        document.getElementById(
+            "dataChart"
+        );
 
-    if (!labelsInput || !valuesInput || !canvas) {
+    if (
+        !labelsInput ||
+        !valuesInput ||
+        !canvas
+    ) {
         return;
     }
 
     const labels =
         labelsInput.value
             .split(",")
-            .map(value => value.trim())
+            .map(
+                value =>
+                    value.trim()
+            )
             .filter(Boolean);
 
     const values =
         valuesInput.value
             .split(",")
-            .map(value => Number(value.trim()));
+            .map(
+                value =>
+                    Number(
+                        value.trim()
+                    )
+            );
 
     if (
         labels.length === 0 ||
         values.length === 0 ||
         labels.length !== values.length ||
-        values.some(value => !Number.isFinite(value))
+        values.some(
+            value =>
+                !Number.isFinite(value)
+        )
     ) {
         showToast(
             "Make sure your labels and numbers match."
@@ -1407,7 +1844,9 @@ function plotData() {
         return;
     }
 
-    if (typeof Chart === "undefined") {
+    if (
+        typeof Chart === "undefined"
+    ) {
         showToast(
             "Chart.js has not loaded yet."
         );
@@ -1419,34 +1858,40 @@ function plotData() {
         dataChart.destroy();
     }
 
-    dataChart = new Chart(
-        canvas.getContext("2d"),
-        {
-            type: "line",
+    dataChart =
+        new Chart(
+            canvas.getContext("2d"),
+            {
+                type: "line",
 
-            data: {
-                labels,
+                data: {
+                    labels,
 
-                datasets: [
-                    {
-                        label: "Study Data",
-                        data: values,
-                        tension: 0.3
-                    }
-                ]
-            },
+                    datasets: [
+                        {
+                            label:
+                                "Study Data",
 
-            options: {
-                responsive: true,
+                            data:
+                                values,
 
-                plugins: {
-                    legend: {
-                        display: true
+                            tension:
+                                0.3
+                        }
+                    ]
+                },
+
+                options: {
+                    responsive: true,
+
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
                     }
                 }
             }
-        }
-    );
+        );
 }
 
 // ==============================
@@ -1455,7 +1900,9 @@ function plotData() {
 
 let notes =
     JSON.parse(
-        localStorage.getItem("atomscapeNotes") || "[]"
+        localStorage.getItem(
+            "atomscapeNotes"
+        ) || "[]"
     );
 
 function saveNotes() {
@@ -1466,13 +1913,21 @@ function saveNotes() {
 }
 
 function saveNote() {
+
     const titleInput =
-        document.getElementById("noteTitle");
+        document.getElementById(
+            "noteTitle"
+        );
 
     const textInput =
-        document.getElementById("noteText");
+        document.getElementById(
+            "noteText"
+        );
 
-    if (!titleInput || !textInput) {
+    if (
+        !titleInput ||
+        !textInput
+    ) {
         return;
     }
 
@@ -1492,9 +1947,12 @@ function saveNote() {
 
     notes.unshift({
         id: Date.now().toString(),
-        title: title || "Untitled Note",
+        title:
+            title ||
+            "Untitled Note",
         text,
-        createdAt: new Date().toISOString()
+        createdAt:
+            new Date().toISOString()
     });
 
     saveNotes();
@@ -1504,13 +1962,17 @@ function saveNote() {
 
     renderNotes();
 
-    showToast("📝 Note saved!");
+    showToast(
+        "📝 Note saved!"
+    );
 }
 
 function deleteNote(id) {
+
     notes =
         notes.filter(
-            note => note.id !== id
+            note =>
+                note.id !== id
         );
 
     saveNotes();
@@ -1519,8 +1981,11 @@ function deleteNote(id) {
 }
 
 function renderNotes() {
+
     const container =
-        document.getElementById("notesList");
+        document.getElementById(
+            "notesList"
+        );
 
     if (!container) {
         return;
@@ -1534,29 +1999,34 @@ function renderNotes() {
     }
 
     container.innerHTML =
-        notes.map(note => `
-            <div class="note-card">
+        notes.map(
+            note => `
+                <div class="note-card">
 
-                <div class="note-content">
+                    <div class="note-content">
 
-                    <h3>
-                        ${escapeHTML(note.title)}
-                    </h3>
+                        <h3>
+                            ${escapeHTML(
+                                note.title
+                            )}
+                        </h3>
 
-                    <p>
-                        ${escapeHTML(note.text)}
-                    </p>
+                        <p>
+                            ${escapeHTML(
+                                note.text
+                            )}
+                        </p>
+
+                    </div>
+
+                    <button
+                        onclick="deleteNote('${note.id}')">
+                        ✕
+                    </button>
 
                 </div>
-
-                <button
-                    onclick="deleteNote('${note.id}')"
-                >
-                    ✕
-                </button>
-
-            </div>
-        `).join("");
+            `
+        ).join("");
 }
 
 // ==============================
@@ -1564,14 +2034,20 @@ function renderNotes() {
 // ==============================
 
 function handleWebSearchKey(event) {
-    if (event.key === "Enter") {
+
+    if (
+        event.key === "Enter"
+    ) {
         searchWeb();
     }
 }
 
 function searchWeb() {
+
     const input =
-        document.getElementById("webSearchInput");
+        document.getElementById(
+            "webSearchInput"
+        );
 
     if (!input) {
         return;
@@ -1604,9 +2080,14 @@ function searchWeb() {
 // ==============================
 
 function loadSavedTools() {
+
     renderCalendarEvents();
+
     renderNotes();
+
     updateTimerDisplay();
+
+    updateAtoms();
 }
 
 // ==============================
@@ -1617,6 +2098,7 @@ document.addEventListener(
     "DOMContentLoaded",
     () => {
 
+        // Load saved Atoms immediately
         updateAtoms();
 
         loadSavedTools();
@@ -1629,6 +2111,7 @@ document.addEventListener(
             ).get("connected");
 
         if (connected === "1") {
+
             showToast(
                 "✅ Google Classroom connected!"
             );
@@ -1640,7 +2123,7 @@ document.addEventListener(
             );
         }
 
-        // Navigation buttons
+        // Navigation
         document.querySelectorAll(
             "nav button[data-section]"
         ).forEach(button => {
@@ -1648,9 +2131,12 @@ document.addEventListener(
             button.addEventListener(
                 "click",
                 () => {
+
                     showSection(
-                        button.dataset.section
+                        button.dataset.section,
+                        button
                     );
+
                 }
             );
 
